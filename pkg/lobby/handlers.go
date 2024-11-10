@@ -39,8 +39,6 @@ func (l *Lobby) HandleMoveMessage (message []byte) error {
 		return fmt.Errorf("error unmarshalling move-message: %v\n", err)
 	}
 
-	fmt.Println(moveMessage)
-
 	targetGame, exists := l.Games[moveMessage.Code]
 	if !exists {
 		return fmt.Errorf("game doesn't exist at: %v", moveMessage.Code)
@@ -50,11 +48,6 @@ func (l *Lobby) HandleMoveMessage (message []byte) error {
 		return fmt.Errorf("winner on board %v", targetGame.Code)
 	}
 
-	winner := targetGame.CheckWin(targetGame.Board, moveMessage.Player, moveMessage.Move)
-	if winner != ""{
-		targetGame.Winner = winner
-		handleWinner(targetGame, moveMessage.Player)
-	}
 
 	go func () {
 		err := targetGame.HandleMove(moveMessage);
@@ -72,12 +65,14 @@ func (l *Lobby) HandleCreateGame (message []byte, client *socket.Connection) err
 	}
 
 	newGame := game.NewGame()
+	l.CleanupGames(client, newGame.Code)
+
 	l.Games[newGame.Code] = newGame
 
 	newGame.Players[client.Id] = client
 
-	fmt.Printf("new game created with code %v\n", newGame.Code)
 	fmt.Printf("total games: %v\n", len(l.Games))
+
 	msg := &GameMessage{
 		Type: "game-code",
 		Code: newGame.Code,
@@ -107,18 +102,6 @@ func (l *Lobby) HandleRematch (message []byte) error {
 		sendRematchRequest(targetGame.Players)
 	}
 	return nil
-}
-
-func handleWinner (game *game.Game, player string) {
-	var winMessaage = WinnerMessage{
-		Type: "winner",
-		Game: game.Code,
-		Player: player,
-	}
-
-	for _, player := range game.Players {
-		player.Send <- winMessaage
-	}
 }
 
 func sendRematchRequest(players map[string]*socket.Connection) {

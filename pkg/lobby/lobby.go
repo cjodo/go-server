@@ -15,7 +15,7 @@ type Lobby struct {
 	Register			chan *socket.Connection
 	Unregister		chan *socket.Connection
 	Games					map[string]*game.Game 
-	mut 					sync.Mutex
+	mu 					sync.Mutex
 }
 
 func NewLobby() *Lobby {
@@ -25,7 +25,7 @@ func NewLobby() *Lobby {
 		Register:   make(chan *socket.Connection),
 		Unregister: make(chan *socket.Connection),
 		Games:			make(map[string]*game.Game),		
-		mut: 				sync.Mutex{},			
+		mu: 				sync.Mutex{},			
 	}
 }
 
@@ -49,9 +49,9 @@ func (l *Lobby) Run() {
 				go l.handleClientRead(client)
 			}
 
-			l.mut.Lock()
+			l.mu.Lock()
 			l.pingClients()
-			l.mut.Unlock()
+			l.mu.Unlock()
 
 		case client := <-l.Unregister:
 			client.Conn.Close()

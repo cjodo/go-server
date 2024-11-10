@@ -5,8 +5,8 @@ type Vec2 struct {
 	Y int
 }
 
-func (g *Game) CheckWin(gameBoard [9]string, player string, move int) string {
-	newBoard := buildBoard2D(gameBoard, player, move) 
+func (g *Game) CheckWin(player string, move int) string {
+	newBoard := buildBoard2D(g.Board, player, move) 
 	//rows
 	for row := range 3 {
 		left := newBoard[row][0]
