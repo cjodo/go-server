@@ -28,12 +28,6 @@ type ReconnectMessage struct {
 	Winner 		string `json:"winner"`
 }
 
-type WinnerMessage struct {
-	Type 			string 	`json:"type"`
-	Game			string 	`json:"game-code"`
-	Player 		string	`json:"player"`
-}
-
 func (l *Lobby) handleMessage(message []byte, client *socket.Connection) error {
 	type msgType struct {
 		Type string `json:"type"`

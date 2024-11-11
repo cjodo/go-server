@@ -23,6 +23,12 @@ type Game struct {
 	RematchPool   int
 }
 
+type WinnerMessage struct {
+	Type 			string 	`json:"type"`
+	Game			string 	`json:"game-code"`
+	Player 		string	`json:"player"`
+}
+
 type startMessage struct {
 	Type			string			`json:"type"`
 	Game			string			`json:"game-code"`
@@ -102,6 +108,12 @@ func (g *Game) HandleMove (m MoveMessage) error {
 		return fmt.Errorf("not a valid move");
 	}
 
+	winner := g.CheckWin(m.Player, m.Move)
+	if winner != ""{
+		g.Winner = winner
+		g.handleWinner(m.Player)
+	}
+
 	g.Board[m.Move] = m.Turn
 	m.Board = g.Board
 
@@ -131,4 +143,17 @@ func (g *Game) Reset() {
 	g.Turn = 				defaultTurn
 	g.Winner = 			defaultWinner
 	g.RematchPool = 0
+}
+
+func (g *Game) handleWinner(player string) {
+	var winMessaage = WinnerMessage{
+		Type: "winner",
+		Game: g.Code,
+		Player: player,
+	}
+
+	for _, player := range g.Players {
+		player.Send <- winMessaage
+	}
+
 }
