@@ -31,7 +31,7 @@ func main() {
 	})
 
 	fmt.Println("server now running on port :", port)
-	log.Fatal(http.ListenAndServe(":" + port, nil))
+	log.Fatal(http.ListenAndServe("0.0.0.0:" + port, nil))
 }
 
 func connect(w http.ResponseWriter, r *http.Request, l *lobby.Lobby) {
