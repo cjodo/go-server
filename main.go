@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -13,6 +14,12 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "4040"
+	}
+	
 	l := lobby.NewLobby()
 
 	go l.Run()
@@ -23,8 +30,8 @@ func main() {
 		connect(w, r, l)
 	})
 
-	fmt.Println("server now running on port :4040")
-	log.Fatal(http.ListenAndServe(":4040", nil))
+	fmt.Println("server now running on port :", port)
+	log.Fatal(http.ListenAndServe(":" + port, nil))
 }
 
 func connect(w http.ResponseWriter, r *http.Request, l *lobby.Lobby) {

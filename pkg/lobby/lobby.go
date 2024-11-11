@@ -15,7 +15,7 @@ type Lobby struct {
 	Register			chan *socket.Connection
 	Unregister		chan *socket.Connection
 	Games					map[string]*game.Game 
-	mu 					sync.Mutex
+	mu 						sync.Mutex
 }
 
 func NewLobby() *Lobby {
