@@ -72,7 +72,7 @@ func setSessionHandler(w http.ResponseWriter, r *http.Request){
 		Name: "token",
 		Value: newToken.String(),
 		Path: "/",
-		HttpOnly: true,
+		HttpOnly: false,
 		MaxAge: 3600,
 		Secure: true,
 		SameSite: http.SameSiteLaxMode,
