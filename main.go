@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -41,9 +42,7 @@ func connect(w http.ResponseWriter, r *http.Request, l *lobby.Lobby) {
 		// won't connect unless they have a valid session token
 		fmt.Println("Error getting cookie or does not exist")
 		return
-	} else {
-		fmt.Println("token: ", token)
-	}
+	} 
 
 	conn, err := socket.Upgrade(w, r)
 	if err != nil {
@@ -51,8 +50,10 @@ func connect(w http.ResponseWriter, r *http.Request, l *lobby.Lobby) {
 		return
 	}
 
+	tokenValue := strings.Split(token.String(), "=")
+
 	connection := &socket.Connection{
-		Id: token.String(),
+		Id: tokenValue[1],
 		Conn: conn,
 		Send: make(chan interface{}),
 	}
@@ -61,8 +62,6 @@ func connect(w http.ResponseWriter, r *http.Request, l *lobby.Lobby) {
 }
 
 func setSessionHandler(w http.ResponseWriter, r *http.Request){
-	fmt.Println("session req received")
-
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 

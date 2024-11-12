@@ -1,7 +1,6 @@
 package socket
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -29,18 +28,24 @@ func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 }
 
 func (c *Connection) HandleWrite() {
-	for {
-		message := <-c.Send
+    defer func() {
+        fmt.Println("Closing connection for client:", c)
+        c.Conn.Close()
+    }()
 
-		json, err := json.Marshal(message)
-		if err != nil {
-			fmt.Println("error marshalling json: ", err)
-			break
-		}
+    for {
+        message, ok := <-c.Send
+        if !ok {
+            // Channel closed, exit the loop
+            fmt.Println("Send channel closed for client:", c)
+            break
+        }
+        fmt.Println("Sending message:", message)
 
-		if err := c.Conn.WriteMessage(1, json); err != nil {
-			fmt.Println(err)
-			break
-		}
-	}
+        if err := c.Conn.WriteJSON(message); err != nil {
+            fmt.Printf("Write error for client %s: %v\n", c.Id, err)
+            break
+        }
+    }
 }
+

@@ -10,6 +10,7 @@ import (
 
 func (l *Lobby) HandleJoinGame (message []byte, client *socket.Connection) error { 
 	var joinGame GameMessage
+
 	if err := json.Unmarshal(message, &joinGame); err != nil {
 		return fmt.Errorf("error unmarshalling join-game message: %v\n", err)
 	}
@@ -18,12 +19,13 @@ func (l *Lobby) HandleJoinGame (message []byte, client *socket.Connection) error
 	if !exists {
 		return fmt.Errorf("game doesn't exist at: %v", joinGame.Code)
 	}
-	// TODO destroy inactive games
+
 	if _, exists := targetGame.Players[client.Id]; exists {
-		return fmt.Errorf("client already in game: %v, %v", targetGame.Code, client.Id)
+		return nil
 	}
-	//client doesnt exist
+
 	targetGame.Players[client.Id] = client
+
 
 	if len(targetGame.Players) == 2 {
 		targetGame.Start(false)
@@ -48,13 +50,13 @@ func (l *Lobby) HandleMoveMessage (message []byte) error {
 		return fmt.Errorf("winner on board %v", targetGame.Code)
 	}
 
-
 	go func () {
 		err := targetGame.HandleMove(moveMessage);
 		if	err != nil {
 			fmt.Printf("error handling move: %v\n", err)
 		}
 	}()
+
 	return nil
 }
 

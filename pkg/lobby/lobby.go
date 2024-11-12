@@ -44,7 +44,7 @@ func (l *Lobby) Run() {
 				go l.handleClientRead(client)
 				break
 			} else {
-				go l.registerConn(client)
+				go l.registerClient(client)
 				go client.HandleWrite()
 				go l.handleClientRead(client)
 			}
@@ -59,7 +59,7 @@ func (l *Lobby) Run() {
 	}
 }
 
-func (l *Lobby) registerConn(client *socket.Connection) {
+func (l *Lobby) registerClient(client *socket.Connection) {
 	l.clients[client.Id] = client
 }
 
@@ -71,7 +71,6 @@ func (l * Lobby) handleClientRead(client *socket.Connection) {
 			_, p, err := client.Conn.ReadMessage()
 			if err != nil {
 				fmt.Println("error reading message: ", err)
-				l.Unregister <- client
 				break
 			}
 

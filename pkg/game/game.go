@@ -117,8 +117,8 @@ func (g *Game) HandleMove (m MoveMessage) error {
 	g.Board[m.Move] = m.Turn
 	m.Board = g.Board
 
-	for _, player := range g.Players{
-		g.notifyPlayer(m, player)
+	for _, client := range g.Players{
+		g.notifyPlayer(m, client)
 	}
 
 	g.changeTurn()
@@ -126,8 +126,11 @@ func (g *Game) HandleMove (m MoveMessage) error {
 	return nil
 }
 
-func (g *Game) notifyPlayer (m interface{}, p *socket.Connection){
-	p.Send <- m
+func (g *Game) notifyPlayer (m interface{}, client *socket.Connection){
+	fmt.Println("notify: ", client)
+	go func() {
+		client.Send <- m
+	}()
 }
 
 func (g *Game) changeTurn() {
@@ -155,5 +158,5 @@ func (g *Game) handleWinner(player string) {
 	for _, player := range g.Players {
 		player.Send <- winMessaage
 	}
-
 }
+
